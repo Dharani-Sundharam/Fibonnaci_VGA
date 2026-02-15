@@ -1,0 +1,74 @@
+# Vivado Project Files
+*.jou
+*.log
+*.str
+*.zip
+*.tmp
+
+# Simulation Files
+*.wdb
+*.wcfg
+*.vcd
+*.saif
+xsim.dir/
+*.protoinst
+.Xil/
+webtalk*.jou
+webtalk*.log
+
+# Build Outputs
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
+
+# Bitstream and Reports
+*.bit
+*.bin
+*.mcs
+*.prm
+*.ltx
+*.rpt
+*.dcp
+*.txt
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Keep these directories but ignore contents
+*.gen/
+!*.gen/.gitkeep
+
+# Vivado User Files
+*.xpr.user
+
+# ISE Project Files (if migrating from ISE)
+*.gise
+*.xise
+*.bgn
+*.drc
+*.ncd
+*.ngc
+*.ngd
+*.ngr
+*.pad
+*.par
+*.pcf
+*.prj
+*.ptwx
+*.stx
+*.syr
+*.twr
+*.twx
+*.unroutes
+*.ut
+*.xpi
+*.xwbt
+_ngo/
+_xmsgs/
+iseconfig/
+xlnx_auto_*
