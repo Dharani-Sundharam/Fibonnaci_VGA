@@ -21,6 +21,7 @@ module fibonacci_datapath (
 
     // Status to FSM
     output wire        valid,
+    output reg         overflow,      // Overflow flag
     output wire [2:0]  gen_count,
 
     // Data outputs
@@ -68,11 +69,21 @@ module fibonacci_datapath (
             gen_result <= 8'd0;
             gen_cnt    <= 3'd0;
         end else if (step_gen) begin
-            gen_result        <= gen_a + gen_b;
-            gen_buf[gen_cnt]  <= gen_a + gen_b;   // Buffer each result
-            gen_a             <= gen_b;
-            gen_b             <= gen_a + gen_b;
-            gen_cnt           <= gen_cnt + 1;
+            // Detect overflow (9-bit addition)
+            if ((gen_a + gen_b) > 8'd255) begin
+                overflow <= 1'b1;
+                gen_result <= 8'd255;  // Clamp to max
+                gen_buf[gen_cnt] <= 8'd255;
+                gen_a <= gen_b;
+                gen_b <= 8'd255;
+            end else begin
+                overflow <= 1'b0;
+                gen_result <= gen_a + gen_b;
+                gen_buf[gen_cnt] <= gen_a + gen_b;
+                gen_a <= gen_b;
+                gen_b <= gen_a + gen_b;
+            end
+            gen_cnt <= gen_cnt + 1;
         end
     end
 

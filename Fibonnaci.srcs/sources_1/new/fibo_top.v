@@ -17,7 +17,15 @@ module top_fibonacci #(
     input  wire       btnc,
     input  wire       btnr,
     output wire [7:0] led,
-    output wire       uart_txd
+    output wire       uart_txd,
+    
+    // OLED outputs
+    output wire       oled_sclk,
+    output wire       oled_sdin,
+    output wire       oled_dc,
+    output wire       oled_res,
+    output wire       oled_vbat,
+    output wire       oled_vdd
 );
 
     // === Internal wires ===
@@ -53,7 +61,7 @@ module top_fibonacci #(
         .sw_data({1'b0, sw[6:0]}),
         .load_num1(load_num1), .load_num2(load_num2), .load_num3(load_num3),
         .init_gen(init_gen), .step_gen(step_gen),
-        .valid(valid), .gen_count(gen_count), .gen_out(gen_out),
+        .valid(valid), .overflow(overflow), .gen_count(gen_count), .gen_out(gen_out),
         .result0(result0), .result1(result1),
         .result2(result2), .result3(result3)
     );
@@ -111,10 +119,38 @@ module top_fibonacci #(
     reg        uart_start;
     wire       uart_busy;
 
-    uart_tx u_uart (
+    uart_tx #(
+        .CLK_FREQ(100_000_000),
+        .BAUD_RATE(9600),
+        .PARITY_EN(1),     // Enable even parity
+        .PARITY_ODD(0)     // 0 = even parity, 1 = odd parity
+    ) u_uart (
         .clk(clk), .rst(rst),
         .tx_data(uart_byte), .tx_start(uart_start),
         .tx_out(uart_txd), .tx_busy(uart_busy)
+    );
+
+    // === OLED Controller ===
+    // Map FSM state to display mode
+    wire [2:0] oled_mode;
+    assign oled_mode = show_error ? 3'd5 :      // ERROR mode
+                       show_done  ? 3'd4 :       // DONE mode
+                                    3'd0;        // IDLE mode
+    
+    oled_ctrl u_oled (
+        .clk(clk),
+        .rst(rst),
+        .display_mode(oled_mode),
+        .result0(result0),
+        .result1(result1),
+        .result2(result2),
+        .result3(result3),
+        .oled_sclk(oled_sclk),
+        .oled_sdin(oled_sdin),
+        .oled_dc(oled_dc),
+        .oled_res(oled_res),
+        .oled_vbat(oled_vbat),
+        .oled_vdd(oled_vdd)
     );
 
     // Convert a 4-bit nibble to ASCII hex character

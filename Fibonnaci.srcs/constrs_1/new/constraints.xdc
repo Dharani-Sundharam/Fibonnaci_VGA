@@ -90,6 +90,29 @@ set_property IOSTANDARD LVCMOS33 [get_ports {led[7]}]
 set_property PACKAGE_PIN Y11 [get_ports uart_txd]
 set_property IOSTANDARD LVCMOS33 [get_ports uart_txd]
 
+## ----------------------------------------------------------------------------
+## OLED Display — UG-2832HSWEG04 (SSD1306, 128x32 pixels)
+## 4-wire SPI interface + power control
+## Bank: LVCMOS33
+## ----------------------------------------------------------------------------
+set_property PACKAGE_PIN AB12 [get_ports oled_dc]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_dc]
+
+set_property PACKAGE_PIN AA12 [get_ports oled_res]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_res]
+
+set_property PACKAGE_PIN U10 [get_ports oled_sclk]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_sclk]
+
+set_property PACKAGE_PIN U9 [get_ports oled_sdin]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_sdin]
+
+set_property PACKAGE_PIN U11 [get_ports oled_vbat]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_vbat]
+
+set_property PACKAGE_PIN U12 [get_ports oled_vdd]
+set_property IOSTANDARD LVCMOS33 [get_ports oled_vdd]
+
 ## ============================================================================
 ## End of constraints
 ## ============================================================================

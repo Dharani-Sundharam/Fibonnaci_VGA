@@ -1,0 +1,43 @@
+memory_initialization_radix=16;
+memory_initialization_vector=
+	1900,
+	3100,
+	51ae,
+	2100,
+	3100,
+	51A8,
+	511F,
+	518d,
+	5114,
+	51D9,
+	51F1,
+	5081,
+	500F,
+	50A0,
+	50C0,
+	50DA,
+	5002,
+	1263,
+	50AF,
+	1031;
+	
+; line 3: turn on VDD(active low), delay 0(+1)ms [the delay will always be set with the value -1 since it does a cycle either way. If you wanna set a n ms delay, you have to set it as (n-1) and so on. For further details check MS_DELAY.v]
+; line 4: turn off res, delay 1ms
+; line 5: "display off" command
+; line 6: toggle reset on(active low), delay 1ms, same as line 3
+; line 7: toggle reset off(active low), delay 1ms, same as line 3
+; line 8: added multiplex ratio (hA8)
+; line 9: set multiplex ratio to 32 (h1F)
+; line 10: setting the charge pump (h8D)
+; line 11: enable the charge pump (h14)
+; line 12: set pre-charge period (hD9)
+; line 13: pre-charge period values (hF1)
+; line 14: BANK0 contrast control (h81)
+; line 15: contrast value (h0F)
+; line 16: set segment remap (column address 0 is mapped to SEG0) (hA0)
+; line 17: vertically flipping the display (hC0)
+; line 18: set COM pins hardware configuration (hDA)
+; line 19: sequential COM pin configuration, disable COM Left/Right remap (h00)
+; line 20: turn on VBAT, delay 100ms
+; line 21: "display on" command (hAF)
+; line 22: delay 50 ms so VCC turns on
