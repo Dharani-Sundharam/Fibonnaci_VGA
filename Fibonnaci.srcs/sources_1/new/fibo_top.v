@@ -19,6 +19,15 @@ module top_fibonacci #(
     output wire [7:0] led,
     output wire       uart_txd,
     
+    // VGA integration outputs (NEW)
+    output wire       show_done,
+    output wire       show_error,
+    output wire       breathing_en,
+    output wire [7:0] result0,
+    output wire [7:0] result1,
+    output wire [7:0] result2,
+    output wire [7:0] result3,
+    
     // OLED outputs
     output wire       oled_sclk,
     output wire       oled_sdin,
@@ -32,13 +41,13 @@ module top_fibonacci #(
     wire enter_pulse, rst;
     wire load_num1, load_num2, load_num3;
     wire init_gen, step_gen;
-    wire valid;
+    wire valid, overflow;
     wire [2:0] gen_count;
     wire [7:0] gen_out;
-    wire [7:0] result0, result1, result2, result3;
-    wire breathing_en;
+    wire [7:0] result0_int, result1_int, result2_int, result3_int;
+    wire breathing_en_int;
     wire [2:0] read_phase;
-    wire show_gen, show_error, show_done;
+    wire show_gen, show_error_int, show_done_int;
     wire uart_send_results;
     wire breathing_led;
 
@@ -52,7 +61,7 @@ module top_fibonacci #(
 
     // === Breathing LED ===
     pwm_breathing u_breath (
-        .clk(clk), .rst(rst), .enable(breathing_en), .led_out(breathing_led)
+        .clk(clk), .rst(rst), .enable(breathing_en_int), .led_out(breathing_led)
     );
 
     // === Datapath ===
@@ -62,8 +71,8 @@ module top_fibonacci #(
         .load_num1(load_num1), .load_num2(load_num2), .load_num3(load_num3),
         .init_gen(init_gen), .step_gen(step_gen),
         .valid(valid), .overflow(overflow), .gen_count(gen_count), .gen_out(gen_out),
-        .result0(result0), .result1(result1),
-        .result2(result2), .result3(result3)
+        .result0(result0_int), .result1(result1_int),
+        .result2(result2_int), .result3(result3_int)
     );
 
     // === FSM ===
@@ -72,8 +81,8 @@ module top_fibonacci #(
         .valid(valid), .gen_count(gen_count),
         .load_num1(load_num1), .load_num2(load_num2), .load_num3(load_num3),
         .init_gen(init_gen), .step_gen(step_gen),
-        .breathing_en(breathing_en), .read_phase(read_phase),
-        .show_gen(show_gen), .show_error(show_error), .show_done(show_done),
+        .breathing_en(breathing_en_int), .read_phase(read_phase),
+        .show_gen(show_gen), .show_error(show_error_int), .show_done(show_done_int),
         .uart_send_results(uart_send_results)
     );
 
@@ -87,7 +96,9 @@ module top_fibonacci #(
     end
 
     always @(*) begin
-        if (show_error)
+        led_reg = 8'b0;  // Default to off (prevents X values)
+        
+        if (show_error_int)
             led_reg = {8{blink_cnt[24]}};       // Blink all LEDs
         else if (show_gen)
             led_reg = gen_out;                   // Show Fibonacci value
@@ -98,13 +109,21 @@ module top_fibonacci #(
                 3'd3:    led_reg = 8'b0000_0111;
                 default: led_reg = 8'b0000_0000;
             endcase
-        end else if (breathing_en)
+        end else if (breathing_en_int)
             led_reg = {breathing_led, 7'b0};
-        else
-            led_reg = 8'b0;
     end
 
     assign led = led_reg;
+    
+    // VGA integration outputs - connect internal signals to output ports
+    assign show_done = show_done_int;       // From FSM
+    assign show_error = show_error_int;     // From FSM
+    assign breathing_en = breathing_en_int; // From FSM
+    assign result0 = result0_int;           // From datapath
+    assign result1 = result1_int;           // From datapath
+    assign result2 = result2_int;           // From datapath
+    assign result3 = result3_int;           // From datapath
+
 
     // =================================================================
     // UART TX — Send generated Fibonacci values (or "ERR")
@@ -121,9 +140,9 @@ module top_fibonacci #(
 
     uart_tx #(
         .CLK_FREQ(100_000_000),
-        .BAUD_RATE(9600),
-        .PARITY_EN(1),     // Enable even parity
-        .PARITY_ODD(0)     // 0 = even parity, 1 = odd parity
+        .BAUD_RATE(115200),    // Faster for simulation and matches standard
+        .PARITY_EN(1),         // Enable even parity
+        .PARITY_ODD(0)         // 0 = even parity, 1 = odd parity
     ) u_uart (
         .clk(clk), .rst(rst),
         .tx_data(uart_byte), .tx_start(uart_start),
@@ -133,18 +152,18 @@ module top_fibonacci #(
     // === OLED Controller ===
     // Map FSM state to display mode
     wire [2:0] oled_mode;
-    assign oled_mode = show_error ? 3'd5 :      // ERROR mode
-                       show_done  ? 3'd4 :       // DONE mode
-                                    3'd0;        // IDLE mode
+    assign oled_mode = show_error_int ? 3'd5 :      // ERROR mode
+                       show_done_int  ? 3'd4 :       // DONE mode
+                                        3'd0;        // IDLE mode
     
     oled_ctrl u_oled (
         .clk(clk),
         .rst(rst),
         .display_mode(oled_mode),
-        .result0(result0),
-        .result1(result1),
-        .result2(result2),
-        .result3(result3),
+        .result0(result0_int),
+        .result1(result1_int),
+        .result2(result2_int),
+        .result3(result3_int),
         .oled_sclk(oled_sclk),
         .oled_sdin(oled_sdin),
         .oled_dc(oled_dc),
@@ -185,19 +204,18 @@ module top_fibonacci #(
                 U_IDLE: begin
                     if (uart_send_results && !sent_flag) begin
                         // Capture the 4 results
-                        send_buf[0] <= result0;
-                        send_buf[1] <= result1;
-                        send_buf[2] <= result2;
-                        send_buf[3] <= result3;
+                        send_buf[0] <= result0_int;
+                        send_buf[1] <= result1_int;
+                        send_buf[2] <= result2_int;
+                        send_buf[3] <= result3_int;
                         sent_flag   <= 1'b1;
                         uart_state  <= 5'd1;
                     end
-                    if (show_error && !sent_flag) begin
+                    if (show_error_int && !sent_flag) begin
                         sent_flag  <= 1'b1;
                         uart_state <= 5'd20;
                     end
-                    if (breathing_en)
-                        sent_flag <= 1'b0;
+                    // Note: sent_flag only clears on reset, preventing retransmission
                 end
 
                 // Send result0

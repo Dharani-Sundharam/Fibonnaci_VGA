@@ -96,13 +96,13 @@ module fibonacci_fsm (
                 init_gen = 1'b1;
             end
             S_GENERATE: begin
-                step_gen = 1'b1;
                 show_gen = 1'b1;
+                step_gen = 1'b1;
             end
             S_DONE: begin
-                show_done         = 1'b1;
-                show_gen          = 1'b1;
-                uart_send_results = 1'b1;   // Trigger UART in DONE state
+                show_done = 1'b1;
+                show_gen = 1'b1;
+                uart_send_results = 1'b1;  // Trigger UART in DONE (right after generation)
             end
             S_ERROR: begin
                 show_error = 1'b1;

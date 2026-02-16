@@ -63,6 +63,12 @@ module fibonacci_datapath (
             gen_b      <= 8'd0;
             gen_result <= 8'd0;
             gen_cnt    <= 3'd0;
+            // Initialize buffer to prevent X values
+            gen_buf[0] <= 8'd0;
+            gen_buf[1] <= 8'd0;
+            gen_buf[2] <= 8'd0;
+            gen_buf[3] <= 8'd0;
+            gen_result <= 8'd0;  // Initialize gen_result to prevent LED showing X
         end else if (init_gen) begin
             gen_a      <= num2;
             gen_b      <= num3;
