@@ -3,7 +3,7 @@
 module fibo_vga_top (
     input wire clk,              // 100MHz system clock
     input wire [7:0] sw,         // Switches for input
-    input wire btnc,             // Enter button
+    input wire btnc,             // Enter / Stop button
     input wire btnr,             // Reset button
     output wire [7:0] led,       // LED outputs
     output wire [3:0] vga_r,     // VGA red
@@ -22,12 +22,15 @@ module fibo_vga_top (
     wire init_gen, step_gen;
     wire show_ready, show_done, show_error;
     wire show_read1, show_read2, show_read3;
+    wire show_generating;
     wire [1:0] progress_leds;
     
     // Datapath signals
-    wire valid, gen_done;
-    wire [15:0] result0, result1, result2, result3;  // 16-bit results
+    wire valid, gen_overflow;
     wire [7:0] num1_out, num2_out, num3_out;
+    wire [6:0] value_count;
+    wire [5:0] read_addr;
+    wire [15:0] read_data;
     
     // Debounce buttons
     debounce #(.DELAY_CYCLES(1_000_000)) debounce_enter (
@@ -57,14 +60,13 @@ module fibo_vga_top (
         .step_gen(step_gen),
         .sw_data(sw),
         .valid(valid),
-        .gen_done(gen_done),
-        .result0(result0),
-        .result1(result1),
-        .result2(result2),
-        .result3(result3),
+        .gen_overflow(gen_overflow),
         .num1_out(num1_out),
         .num2_out(num2_out),
-        .num3_out(num3_out)
+        .num3_out(num3_out),
+        .read_addr(read_addr),
+        .read_data(read_data),
+        .value_count(value_count)
     );
     
     // Fibonacci FSM
@@ -73,7 +75,7 @@ module fibo_vga_top (
         .reset(btn_reset),
         .btn_enter(btn_enter_pulse),
         .valid(valid),
-        .gen_done(gen_done),
+        .gen_overflow(gen_overflow),
         .load_num1(load_num1),
         .load_num2(load_num2),
         .load_num3(load_num3),
@@ -85,6 +87,7 @@ module fibo_vga_top (
         .show_read1(show_read1),
         .show_read2(show_read2),
         .show_read3(show_read3),
+        .show_generating(show_generating),
         .progress_leds(progress_leds)
     );
     
@@ -99,10 +102,10 @@ module fibo_vga_top (
         .show_read1(show_read1),
         .show_read2(show_read2),
         .show_read3(show_read3),
-        .result0(result0),
-        .result1(result1),
-        .result2(result2),
-        .result3(result3),
+        .show_generating(show_generating),
+        .value_count(value_count),
+        .read_data(read_data),
+        .read_addr(read_addr),
         .num1(num1_out),
         .num2(num2_out),
         .num3(num3_out),
@@ -117,8 +120,10 @@ module fibo_vga_top (
     // LED outputs for debugging
     assign led[1:0] = progress_leds;
     assign led[2] = show_ready;
-    assign led[3] = show_done;
-    assign led[4] = show_error;
-    assign led[7:5] = 3'b000;
+    assign led[3] = show_generating;
+    assign led[4] = show_done;
+    assign led[5] = show_error;
+    assign led[6] = gen_overflow;
+    assign led[7] = (value_count > 0);
 
 endmodule
