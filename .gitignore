@@ -1,0 +1,22 @@
+# Vivado generated files
+*.jou
+*.log
+*.str
+*.pb
+*.dmp
+
+# Vivado project cache and run directories
+Fibonnaci_VGA.cache/
+Fibonnaci_VGA.runs/
+Fibonnaci_VGA.hw/
+Fibonnaci_VGA.ip_user_files/
+Fibonnaci_VGA.sim/
+
+# Vivado generated hardware files
+*.bit
+*.ltx
+*.bin
+
+# OS files
+Thumbs.db
+.DS_Store
