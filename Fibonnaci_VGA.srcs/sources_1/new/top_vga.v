@@ -59,32 +59,32 @@ module top_vga (
                            (grid_col == 2'd1) ? 10'd160 : 10'd0;
     wire [9:0] cell_x = pixel_x - col_base;
     
-    wire [3:0] grid_row = (pixel_y >= 432) ? 4'd9 :
-                           (pixel_y >= 384) ? 4'd8 :
-                           (pixel_y >= 336) ? 4'd7 :
-                           (pixel_y >= 288) ? 4'd6 :
-                           (pixel_y >= 240) ? 4'd5 :
-                           (pixel_y >= 192) ? 4'd4 :
-                           (pixel_y >= 144) ? 4'd3 :
-                           (pixel_y >= 96)  ? 4'd2 :
-                           (pixel_y >= 48)  ? 4'd1 : 4'd0;
+    // Row layout: 56px per row (48px char + 8px gap), 8 rows fit in 448px
+    wire [3:0] grid_row = (pixel_y >= 392) ? 4'd7 :
+                           (pixel_y >= 336) ? 4'd6 :
+                           (pixel_y >= 280) ? 4'd5 :
+                           (pixel_y >= 224) ? 4'd4 :
+                           (pixel_y >= 168) ? 4'd3 :
+                           (pixel_y >= 112) ? 4'd2 :
+                           (pixel_y >= 56)  ? 4'd1 : 4'd0;
 
-    wire [9:0] row_base = (grid_row == 4'd9) ? 10'd432 :
-                           (grid_row == 4'd8) ? 10'd384 :
-                           (grid_row == 4'd7) ? 10'd336 :
-                           (grid_row == 4'd6) ? 10'd288 :
-                           (grid_row == 4'd5) ? 10'd240 :
-                           (grid_row == 4'd4) ? 10'd192 :
-                           (grid_row == 4'd3) ? 10'd144 :
-                           (grid_row == 4'd2) ? 10'd96  :
-                           (grid_row == 4'd1) ? 10'd48  : 10'd0;
+    wire [9:0] row_base = (grid_row == 4'd7) ? 10'd392 :
+                           (grid_row == 4'd6) ? 10'd336 :
+                           (grid_row == 4'd5) ? 10'd280 :
+                           (grid_row == 4'd4) ? 10'd224 :
+                           (grid_row == 4'd3) ? 10'd168 :
+                           (grid_row == 4'd2) ? 10'd112 :
+                           (grid_row == 4'd1) ? 10'd56  : 10'd0;
     wire [9:0] cell_y = pixel_y - row_base;
     
-    // Scrolling offset
-    wire [6:0] visible_start = (value_count > 40) ? (value_count - 7'd40) : 7'd0;
+    // Pixel is in the 8px gap between rows (not in character area)
+    wire in_row_gap = (cell_y >= 48);
+    
+    // Scrolling offset: 4 cols x 8 rows = 32 visible
+    wire [6:0] visible_start = (value_count > 32) ? (value_count - 7'd32) : 7'd0;
     
     // Value index for current cell
-    wire [6:0] val_idx = visible_start + {1'b0, grid_row, grid_col};
+    wire [6:0] val_idx = visible_start + {1'b0, grid_row[2:0], grid_col};
     
     // Read address to datapath memory
     assign read_addr = val_idx[5:0];
@@ -172,7 +172,7 @@ module top_vga (
     wire seg_c = (seg_ry >= 13 && seg_ry < 21)   && (seg_rx >= 10 && seg_rx < 13);
     wire seg_d = (seg_ry >= 21)                   && (seg_rx >= 3 && seg_rx < 13);
     
-    wire grid_pixel_on = in_char_bounds && digit_active && cell_valid && (
+    wire grid_pixel_on = in_char_bounds && !in_row_gap && digit_active && cell_valid && (
         (seg_a && grid_segments[0]) ||
         (seg_b && grid_segments[1]) ||
         (seg_c && grid_segments[2]) ||
@@ -211,12 +211,12 @@ module top_vga (
     localparam CHAR_SPACING = 40;
     localparam WORD_X0 = 224;
     
-    // Text renderers (8 instances for text modes)
-    wire [3:0] tr[0:7], tg[0:7], tb[0:7];
-    wire tp[0:7];
-    reg [7:0] tval[0:7];
-    reg [9:0] tx[0:7];
-    reg [3:0] tcr[0:7], tcg[0:7], tcb[0:7];
+    // Text renderers (9 instances for text modes)
+    wire [3:0] tr[0:8], tg[0:8], tb[0:8];
+    wire tp[0:8];
+    reg [7:0] tval[0:8];
+    reg [9:0] tx[0:8];
+    reg [3:0] tcr[0:8], tcg[0:8], tcb[0:8];
     
     // BCD for input display
     wire [3:0] sw_h, sw_t, sw_o;
@@ -229,7 +229,7 @@ module top_vga (
     
     genvar gi;
     generate
-        for (gi = 0; gi < 8; gi = gi + 1) begin : text_gen
+        for (gi = 0; gi < 9; gi = gi + 1) begin : text_gen
             digit_renderer text_inst (
                 .pixel_x(pixel_x), .pixel_y(pixel_y),
                 .char_x(tx[gi]), .char_y(CENTER_Y),
@@ -243,7 +243,7 @@ module top_vga (
     // Text display logic
     integer j;
     always @(*) begin
-        for (j = 0; j < 8; j = j + 1) begin
+        for (j = 0; j < 9; j = j + 1) begin
             tval[j] = 0; tx[j] = 0;
             tcr[j] = 0; tcg[j] = 0; tcb[j] = 0;
         end
@@ -289,6 +289,7 @@ module top_vga (
             tval[5] = n2_o; tx[5] = 336; tcr[5] = 0; tcg[5] = 15; tcb[5] = 15;
             tval[6] = sw_h; tx[6] = 386; tcr[6] = 15; tcg[6] = 15; tcb[6] = 0;
             tval[7] = sw_t; tx[7] = 420; tcr[7] = 15; tcg[7] = 15; tcb[7] = 0;
+            tval[8] = sw_o; tx[8] = 454; tcr[8] = 15; tcg[8] = 15; tcb[8] = 0;
         end
     end
     
@@ -297,7 +298,7 @@ module top_vga (
     reg text_on;
     always @(*) begin
         text_r = 0; text_g = 0; text_b = 0; text_on = 0;
-        for (j = 0; j < 8; j = j + 1) begin
+        for (j = 0; j < 9; j = j + 1) begin
             if (tp[j]) begin
                 text_r = tr[j]; text_g = tg[j]; text_b = tb[j];
                 text_on = 1;

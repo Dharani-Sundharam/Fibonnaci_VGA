@@ -69,7 +69,7 @@ module tb_fibo_vga_system;
         // Wait for validation and a few generation steps
         // In simulation, gen_timer counts to 100M which is too slow
         // Just let it run for a bit to verify no crashes
-        #50000;
+        #5_000_000;
         
         $display("=== Simulation Complete ===");
         $display("Value count: %d", dut.value_count);
