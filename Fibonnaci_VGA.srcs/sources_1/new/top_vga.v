@@ -59,29 +59,27 @@ module top_vga (
                            (grid_col == 2'd1) ? 10'd160 : 10'd0;
     wire [9:0] cell_x = pixel_x - col_base;
     
-    // Row layout: 56px per row (48px char + 8px gap), 8 rows fit in 448px
-    wire [3:0] grid_row = (pixel_y >= 392) ? 4'd7 :
-                           (pixel_y >= 336) ? 4'd6 :
-                           (pixel_y >= 280) ? 4'd5 :
-                           (pixel_y >= 224) ? 4'd4 :
-                           (pixel_y >= 168) ? 4'd3 :
-                           (pixel_y >= 112) ? 4'd2 :
-                           (pixel_y >= 56)  ? 4'd1 : 4'd0;
+    // Row layout: 64px per row (48px char + 16px gap), 7 rows fit in 448px
+    wire [3:0] grid_row = (pixel_y >= 384) ? 4'd6 :
+                           (pixel_y >= 320) ? 4'd5 :
+                           (pixel_y >= 256) ? 4'd4 :
+                           (pixel_y >= 192) ? 4'd3 :
+                           (pixel_y >= 128) ? 4'd2 :
+                           (pixel_y >= 64)  ? 4'd1 : 4'd0;
 
-    wire [9:0] row_base = (grid_row == 4'd7) ? 10'd392 :
-                           (grid_row == 4'd6) ? 10'd336 :
-                           (grid_row == 4'd5) ? 10'd280 :
-                           (grid_row == 4'd4) ? 10'd224 :
-                           (grid_row == 4'd3) ? 10'd168 :
-                           (grid_row == 4'd2) ? 10'd112 :
-                           (grid_row == 4'd1) ? 10'd56  : 10'd0;
+    wire [9:0] row_base = (grid_row == 4'd6) ? 10'd384 :
+                           (grid_row == 4'd5) ? 10'd320 :
+                           (grid_row == 4'd4) ? 10'd256 :
+                           (grid_row == 4'd3) ? 10'd192 :
+                           (grid_row == 4'd2) ? 10'd128 :
+                           (grid_row == 4'd1) ? 10'd64  : 10'd0;
     wire [9:0] cell_y = pixel_y - row_base;
     
-    // Pixel is in the 8px gap between rows (not in character area)
+    // Pixel is in the 16px gap between rows (not in character area)
     wire in_row_gap = (cell_y >= 48);
     
-    // Scrolling offset: 4 cols x 8 rows = 32 visible
-    wire [6:0] visible_start = (value_count > 32) ? (value_count - 7'd32) : 7'd0;
+    // Scrolling offset: 4 cols x 7 rows = 28 visible
+    wire [6:0] visible_start = (value_count > 28) ? (value_count - 7'd28) : 7'd0;
     
     // Value index for current cell
     wire [6:0] val_idx = visible_start + {1'b0, grid_row[2:0], grid_col};
