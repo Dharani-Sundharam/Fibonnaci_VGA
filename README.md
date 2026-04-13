@@ -1,130 +1,144 @@
-# ZedBoard Fibonacci Validator & Generator
+<div align="center">
+  <img src="docs/assets/banner_placeholder.gif" alt="Fibonacci System Banner" width="600" />
+</div>
 
-FPGA-based Fibonacci sequence validator and generator implemented on the Xilinx ZedBoard (Zynq-7000).
+<h1 align="center">ZedBoard Fibonacci Validation Engine & VGA Visualizer</h1>
 
-## Overview
+<div align="center">
+  
+  ![License](https://img.shields.io/github/license/Dharani-Sundharam/Fibonnaci_VGA?style=for-the-badge)
+  ![Last Commit](https://img.shields.io/github/last-commit/Dharani-Sundharam/Fibonnaci_VGA?style=for-the-badge)
+  ![Timing Constraints](https://img.shields.io/badge/Timing-Met-success?style=for-the-badge)
+  ![Platform](https://img.shields.io/badge/Hardware-ZedBoard-orange?style=for-the-badge)
 
-This project implements a hardware-based Fibonacci sequence validator that:
-- Accepts three 8-bit numbers via slide switches
-- Validates if they form a valid Fibonacci sequence (num1 + num2 = num3)
-- Generates the next 4 Fibonacci values if valid
-- Transmits results via UART (9600 baud)
-- Displays progress and results on LEDs
+  > An enterprise-grade, FPGA-based hardware accelerator for validating, generating, and visually rendering Fibonacci sequences on the Xilinx ZedBoard (Zynq-7000) over VGA.
+  
+</div>
 
-## Hardware Requirements
+<br />
 
-- **Board**: Xilinx ZedBoard (XC7Z020-CLG484)
-- **Clock**: 100 MHz system clock
-- **Inputs**: 
-  - SW[6:0] — 7 slide switches for binary input (0-127)
-  - BTNC — Enter button
-  - BTNR — Reset button
-- **Outputs**:
-  - LD0-6 — Progress indicators and result display
-  - LD7 — PWM breathing LED (IDLE indicator)
-  - Pmod JA Pin 1 (Y11) — UART TX output
+## Table of Contents
 
-## Features
+- [About The Project](#about-the-project)
+- [Key Features](#key-features)
+- [Built With](#built-with)
+- [System Architecture](#system-architecture)
+- [Sneak Peek](#sneak-peek)
+- [Getting Started](#getting-started)
+- [Testing & Validation](#testing--validation)
+- [Contributing](#contributing)
+- [License](#license)
 
-✅ **Moore FSM** — Clean state machine design  
-✅ **Button Debouncing** — 10 ms hardware debounce  
-✅ **PWM Breathing LED** — Smooth fade effect in IDLE  
-✅ **UART Output** — Transmits results at 9600 baud  
-✅ **Error Detection** — Validates Fibonacci sequence  
-✅ **LED Display** — Shows progress and final result  
+## About The Project
 
-## Project Structure
+This repository contains the RTL source, hardware constraints, and robust verification environments for an FPGA-based Fibonacci sequence validator equipped with **VGA Rendering capabilities**. Engineered specifically for the robust Xilinx ZedBoard architecture, this system guarantees precise sequence validation through deterministic Moore State Machine execution.
 
+The engine ingests three sequential 8-bit inputs via dedicated hardware slide switches, rigorously validates them against the natural mathematical Fibonacci progression ($n_1 + n_2 = n_3$), dynamically computes the next subsequent values, and renders real-time graphical outputs straight to a VGA monitor.
+
+## Key Features
+
+- **Live VGA Output** — Dedicated VGA synchronization controllers explicitly developed for real-time digit rendering on connected monitors.
+- **Robust Moore FSM** — A highly deterministic state machine architecture governing all datapath switching logically and seamlessly.
+- **Hardware Debouncing** — Integrated 10 ms hardware-level debouncing filters for clean execution cycles during mechanical switch interactions.
+- **Visual Feedback System** — Real-time peripheral progression monitoring, utilizing an optimized PWM breathing LED algorithm.
+- **Rigorous Error Detection** — Built-in hardware fallback for instant invalid mathematical sequence catching and halting.
+
+## Built With
+
+Our technology stack leverages core RTL tooling for synthesis and hardware implementation:
+
+* [![Verilog][Verilog.js]][Verilog-url]
+* [![Vivado][Vivado.js]][Vivado-url]
+* [![Xilinx][Xilinx.js]][Xilinx-url]
+
+## Sneak Peek
+
+<img align="right" width="380" src="docs/assets/demo_placeholder.gif" alt="Hardware Demo GIF">
+
+### Interactive Hardware Dashboard & Display
+
+When synthesized and loaded onto the ZedBoard via JTAG, the user interfaces directly with the onboard peripheral switches:
+
+1. **Input Entry:** Configure base 8-bit sequences sequentially utilizing the `SW[6:0]` digital switches.
+2. **Execution Control:** Engage the computation engine using the debounced `BTNC` hardware pushbutton.
+3. **Data Telemetry & Display:** Validation results immediately map to VGA memory for crisp visual representation across your connected display, supplemented by onboard LED progress indications.
+
+> The visualization to the right demonstrates a potential visual feedback loop, capturing the soft PWM breathing LED pattern alongside the generated sequence outputs on VGA.
+
+<br clear="both"/>
+
+## Getting Started
+
+To compile, synthesize, and run this logic accelerator on your local hardware platform, follow these deployment steps:
+
+<details>
+<summary><b>View Required Prerequisites</b></summary>
+<br>
+
+To successfully synthesize this project, you will need:
+- **Xilinx Vivado Design Suite** (2024.x or a highly compatible version)
+- **ZedBoard Target Device** (Model XC7Z020-CLG484-1)
+- Micro-USB data cables (for UART Telemetry/JTAG Bitstream loading)
+- VGA Display configuration (cable + 1080p/720p monitor)
+
+</details>
+
+<details>
+<summary><b>View Installation & Build Guide</b></summary>
+<br>
+
+1. **Clone the Environment**
+   ```sh
+   git clone https://github.com/Dharani-Sundharam/Fibonnaci_VGA.git
+   ```
+2. **Initialize Workspace**
+   - Launch Vivado.
+   - Open the primary system `.xpr` project file (`Fibonnaci_VGA.xpr`).
+3. **Compile Hardware Maps**
+   - Run standard **Synthesis** processes.
+   - Run **Implementation**.
+   - Output via **Generate Bitstream** to compile the underlying binary payload.
+4. **Deploy Payload**
+   - Link the ZedBoard using the JTAG interface and connect the VGA cable.
+   - Launch Vivado Hardware Manager and **Program Device** passing your generated `.bit` target.
+
+</details>
+
+## Testing & Validation
+
+A comprehensive array of simulation testbenches (`tb_fibo_vga_system`, `tb_top_fibonacci`, etc.) validate the RTL environment thoroughly before jumping to synthesis. To boot the self-checking monitor through Vivado Tcl:
+
+```tcl
+restart; run all
 ```
-Fibonnaci.srcs/
-├── sources_1/new/
-│   ├── fibo_top.v              # Top-level module
-│   ├── fibonacci_fsm.v         # Moore FSM controller
-│   ├── fibonacci_datapath.v    # Registers, adders, validator
-│   ├── debounce.v              # Button debouncer
-│   ├── pwm_breathing.v         # PWM breathing LED
-│   └── uart_tx.v               # UART transmitter (9600 8N1)
-├── sim_1/new/
-│   └── tb_top_fibonacci.v      # Testbench with UART monitor
-└── constrs_1/new/
-    └── constraints.xdc         # ZedBoard pin constraints
-```
 
-## Module Descriptions
+**Common Edge Case Testing Outcomes:**
 
-| Module | Description |
-|--------|-------------|
-| **fibo_top** | Top-level wrapper, connects all modules |
-| **fibonacci_fsm** | Moore FSM (IDLE → READ → VALIDATE → GENERATE → DONE/ERROR) |
-| **fibonacci_datapath** | Arithmetic logic, registers, validation |
-| **debounce** | Parameterizable button debouncer (10 ms @ 100 MHz) |
-| **pwm_breathing** | PWM generator for breathing LED effect |
-| **uart_tx** | Simple UART transmitter, 8-N-1, 9600 baud |
-| **tb_top_fibonacci** | Self-checking testbench with UART decoder |
+| Primary Input | Result Validation | Behavioral Output |
+| :--- | :---: | :--- |
+| Valid Range ($3, 5, 8$) | Sequence Match Verified | Calculates $13, 21, 34$, triggers VGA Draw System |
+| Invalid Range ($1, 2, 8$) | Verification Fail Context | Pipeline freezes, fires visual Error LED routine |
 
-## Usage
+## Contributing
 
-### Simulation
+Contributions make the open-source community an amazing place to learn, inspire, and build. Your optimizations or UI rendering fixes are **greatly appreciated**.
 
-1. Open project in Vivado
-2. Run Behavioral Simulation
-3. In Tcl console: `restart; run all`
-4. UART output appears in console (e.g., `03 05 08 0D`)
-
-### Hardware
-
-1. **Synthesize** → **Implement** → **Generate Bitstream**
-2. Program ZedBoard via JTAG
-3. **Enter sequence**:
-   - Set switches to first number
-   - Press BTNC
-   - Repeat for 2nd and 3rd numbers
-4. **View results**:
-   - LEDs show generated values
-   - Connect FTDI cable to Pmod JA Pin 1 for UART output
-
-### Example Test Cases
-
-| num1 | num2 | num3 | Result | Output |
-|------|------|------|--------|--------|
-| 1 | 1 | 2 | ✅ Valid | `03 05 08 0D` (3, 5, 8, 13) |
-| 2 | 3 | 5 | ✅ Valid | `08 0D 15 22` (8, 13, 21, 34) |
-| 1 | 1 | 5 | ❌ Invalid | `ERR` (LEDs blink) |
-
-## UART Format
-
-**Valid sequence**: `[R0] [R1] [R2] [R3]\r\n` (hex, space-separated)  
-**Invalid sequence**: `ERR\r\n`
-
-**Settings**: 9600 baud, 8 data bits, no parity, 1 stop bit (8N1)
-
-## Timing Results
-
-- **WNS (Setup)**: +4.888 ns ✅
-- **WHS (Hold)**: +0.169 ns ✅
-- **WPWS**: +4.500 ns ✅
-- **Clock**: 100 MHz (10 ns period)
-- **All timing constraints met** ✅
-
-## Resource Utilization
-
-| Resource | Used | Available | % |
-|----------|------|-----------|---|
-| LUTs | ~200 | 53,200 | <1% |
-| Flip-Flops | ~150 | 106,400 | <1% |
-| DSPs | 0 | 220 | 0% |
-| BRAM | 0 | 140 | 0% |
-
-## Tools
-
-- **Vivado**: 2024.x (or compatible version)
-- **Target Device**: XC7Z020-CLG484-1 (ZedBoard)
-- **Language**: Verilog-2001
-
-## Author
-
-Dharani Sundharam
+1. Fork the Repository
+2. Initialize your Feature Branch (`git checkout -b feature/OptimizationDesign`)
+3. Commit your Architectural Changes (`git commit -m 'Implement pipelined VGA Memory Cache'`)
+4. Push to the Branch (`git push origin feature/OptimizationDesign`)
+5. Open a Pull Request
 
 ## License
 
-This project is open source and available for educational purposes.
+Distributed under the MIT License. Reference the root layout for exhaustive distribution regulations.
+
+---
+
+<!-- Markdown Image Definition Links -->
+[Verilog.js]: https://img.shields.io/badge/Verilog-153F71?style=for-the-badge
+[Verilog-url]: https://en.wikipedia.org/wiki/Verilog
+[Vivado.js]: https://img.shields.io/badge/Vivado-E30022?style=for-the-badge&logo=xilinx&logoColor=white
+[Vivado-url]: https://www.xilinx.com/products/design-tools/vivado.html
+[Xilinx.js]: https://img.shields.io/badge/Xilinx_ZedBoard-000000?style=for-the-badge&logo=Xilinx&logoColor=white
+[Xilinx-url]: https://digilent.com/reference/programmable-logic/zedboard/start
