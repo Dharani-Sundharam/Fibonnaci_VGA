@@ -4,6 +4,8 @@
 *.str
 *.zip
 *.tmp
+*.pb
+*.dmp
 
 # Simulation Files
 *.wdb
@@ -22,6 +24,11 @@ webtalk*.log
 *.hw/
 *.ip_user_files/
 *.sim/
+Fibonnaci_VGA.cache/
+Fibonnaci_VGA.runs/
+Fibonnaci_VGA.hw/
+Fibonnaci_VGA.ip_user_files/
+Fibonnaci_VGA.sim/
 
 # Bitstream and Reports
 *.bit

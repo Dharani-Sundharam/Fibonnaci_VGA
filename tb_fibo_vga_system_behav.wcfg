@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_fibo_vga_system_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb_fibo_vga_system" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="1,288.000000001 ms"></ZoomEndTime>
+      <Cursor1Time time="664.000000000 ms"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="176"></NameColumnWidth>
+      <ValueColumnWidth column_width="72"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="12" />
+   <wvobject fp_name="/tb_fibo_vga_system/clk" type="logic">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/btnr" type="logic">
+      <obj_property name="ElementShortName">btnr</obj_property>
+      <obj_property name="ObjectShortName">btnr</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/sw" type="array">
+      <obj_property name="ElementShortName">sw[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sw[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/btnc" type="logic">
+      <obj_property name="ElementShortName">btnc</obj_property>
+      <obj_property name="ObjectShortName">btnc</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/led" type="array">
+      <obj_property name="ElementShortName">led[7:0]</obj_property>
+      <obj_property name="ObjectShortName">led[7:0]</obj_property>
+      <obj_property name="Radix">UNSIGNEDDECRADIX</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/vga_r" type="array">
+      <obj_property name="ElementShortName">vga_r[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_r[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/vga_g" type="array">
+      <obj_property name="ElementShortName">vga_g[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_g[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/vga_b" type="array">
+      <obj_property name="ElementShortName">vga_b[3:0]</obj_property>
+      <obj_property name="ObjectShortName">vga_b[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/hsync" type="logic">
+      <obj_property name="ElementShortName">hsync</obj_property>
+      <obj_property name="ObjectShortName">hsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/vsync" type="logic">
+      <obj_property name="ElementShortName">vsync</obj_property>
+      <obj_property name="ObjectShortName">vsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/frame_count" type="array">
+      <obj_property name="ElementShortName">frame_count[31:0]</obj_property>
+      <obj_property name="ObjectShortName">frame_count[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb_fibo_vga_system/last_vsync" type="logic">
+      <obj_property name="ElementShortName">last_vsync</obj_property>
+      <obj_property name="ObjectShortName">last_vsync</obj_property>
+   </wvobject>
+</wave_config>
